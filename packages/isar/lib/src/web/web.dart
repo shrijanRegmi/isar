@@ -1,11 +1,11 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
-import 'dart:html';
-import 'dart:js_util';
+import 'dart:js_interop';
 
 import 'package:isar/isar.dart';
 import 'package:isar/src/web/interop.dart';
+import 'package:web/web.dart';
 
 export 'bindings.dart';
 export 'ffi.dart';
@@ -18,9 +18,10 @@ FutureOr<IsarCoreBindings> initializePlatformBindings([
   final w = window as JSWindow;
   final promise = w.WebAssembly.instantiateStreaming(
     w.fetch(url),
-    jsify({'env': <String, String>{}}),
+    {'env': <String, String>{}}.jsify(),
   );
-  final wasm = await promiseToFuture<JSWasmModule>(promise);
+  final wasm = await ((promise as JSPromise).toDart as Future<JSWasmModule>);
+
   return wasm.instance.exports;
 }
 
